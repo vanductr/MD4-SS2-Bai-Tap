@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        /* Định dạng cho hình ảnh */
+        #img-of-the-day {
+            width: 100%; /* Chiều rộng của hình ảnh sẽ đồng bằng chiều rộng của phần tử chứa */
+            max-width: 600px; /* Tối đa chiều rộng của hình ảnh là 600px */
+            height: auto; /* Chiều cao tự điều chỉnh để giữ tỷ lệ khung hình */
+            display: block; /* Hiển thị hình ảnh như một khối */
+            margin: auto; /* Canh giữa hình ảnh */
+            margin-top: 20px; /* Khoảng cách từ trên xuống */
+        }
+
+        /* Định dạng cho danh sách comment */
+        #comment-list {
+            margin-top: 20px;
+        }
+
+        /* Định dạng cho mỗi comment */
+        .comment {
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* Định dạng cho nút Like */
+        .like-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .like-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Định dạng cho số lượt like */
+        .like-count {
+            margin-left: 10px;
+        }
+
+    </style>
+
+    <style>
+        /* Định dạng tiêu đề */
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        /* Định dạng form */
+        #rating-form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #rating-form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #rating-form input[type="text"],
+        #rating-form textarea,
+        #rating-form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        #rating-form button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #rating-form button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>Astronomy Picture of the Day</h1>
+<img id="img-of-the-day">
+
+<script th:inline="javascript">
+    var query = 'https://api.nasa.gov/planetary/apod?api_key=HrgalclNXdNf40DygEb5oDF6amrdvWAG5hssXcgR';
+    var request = new XMLHttpRequest();
+    request.open('GET', query);
+    request.onload = function() {
+        if (request.status === 200) {
+            var response = JSON.parse(request.responseText);
+            document.getElementById('img-of-the-day').setAttribute('src', response.url);
+        }
+    };
+    request.send();
+</script>
+
+<h2>Rating Form</h2>
+<form id="rating-form" method="post" action="/add-new-comment">
+    <label for="author">Author:</label>
+    <input type="text" id="author" name="author">
+    <br>
+    <label for="comment">Comment:</label>
+    <textarea id="comment" name="comment"></textarea>
+    <br>
+    <label for="rating">Rating:</label>
+    <select id="rating" name="rating">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>
+    <br>
+    <input type="submit" value="Submit">
+</form>
+
+<!-- Danh sách Comment -->
+<form id="comment-list" method="post" action="/like-comment">
+    <div th:each="comment : ${comments}">
+        <div class="comment">
+            <p th:text="${comment.comment}"></p>
+            <input type="hidden" th:value="${comment.id}" name="commentId"> <!-- Hidden input để chứa id của comment -->
+            <input type="submit" class="like-button" value="Like"> <!-- Input type submit thay thế cho button -->
+            <span class="like-count" th:text="|Số lượt Like:   ${comment.likeCount}|">0</span>
+            <span class="like-count" th:text="|Tác giả:   ${comment.author}|">0</span>
+        </div>
+    </div>
+</form>
+
+</body>
+</html>
